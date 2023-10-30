@@ -312,7 +312,6 @@ int	parse_line(t_data *data)
 	}
 
 	//Verification de la position des pipes
-
 	if (!quotes_correct(data->line))
 	{
 		printf("syntax error: incomplete quotes\n");
@@ -340,7 +339,6 @@ int	parse_line(t_data *data)
 		return (error(SYNTAX_ERROR, "newline"));
 	if (error_type(data->cmd) == 6)
 		return (error(SYNTAX_ERROR, "|"));
-	
 	expand(data->cmd, data->env, data->pwd_displayable);	//ca a l'air ok,a voir pour les $ seuls ou suites de $
 
 	split_tokens_on_whitespaces(data->cmd);

@@ -60,6 +60,7 @@ int	more_error(int type_error, char *str)
 		ft_putendl_fd(": numeric argument required", 2);
 		type_error = 2;
 	}
+	g_exit_status = 1;
 	return (type_error);
 }
 
@@ -69,17 +70,20 @@ int	error(int type_error, char *str)
 	{
 		ft_putstr_fd("Malloc error in file: ", 2);
 		ft_putendl_fd(str, 2);
+		g_exit_status = 1;
 	}
 	else if (type_error == SYNTAX_ERROR)
 	{
 		ft_putstr_fd("bash: syntax error near unexpected token '", 2);
 		ft_putstr_fd(str, 2);
 		ft_putendl_fd("'", 2);
+		g_exit_status = 2;
 	}
 	else if (type_error == CWD_ERROR)
 	{
 		ft_putendl_fd("pwd: cannot get current directory path", 2);
 		type_error = 1;
+		g_exit_status = 1;
 	}
 	else
 		type_error = more_error(type_error, str);

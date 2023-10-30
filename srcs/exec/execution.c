@@ -360,7 +360,9 @@ int	execute(t_data *data)
 	char	**env;
 	char	**path;
 	char	*hdoc;
+	int		status;
 
+	status = 0;
 	hdoc = NULL;
 	path_to_use = NULL;
 	fdd = dup(STDIN_FILENO);
@@ -372,14 +374,13 @@ int	execute(t_data *data)
 
 	if (is_builtin(data, cmd->token) && !cmd->next)
 	{
+		g_exit_status = 0;
 		if (contains_heredoc(cmd->token))
 			hdoc = handle_heredoc(cmd, data);
-		/*if (hdoc)
-			ft_putstr_fd(hdoc, 2);	//Debugging*/
 		if (!handle_redirects(data, cmd, hdoc))
 			if (!check_files(cmd, data))
 				builtin_dispatch(data, cmd->token, cmd);
-		cmd = cmd->next;
+		return(g_exit_status);
 	} 
 	while (cmd)
 	{
@@ -403,13 +404,6 @@ int	execute(t_data *data)
 				close(fd[1]);
 				close(fd[0]);
 			}
-			/* Heredocs */
-			//if (contains_heredoc(cmd, data))
-			//	hdoc = handle_heredoc(cmd, data);	//On le fait avant le fork
-			/*if (hdoc)
-				ft_putstr_fd(hdoc, 2); //debugging, a supprimer*/
-
-			/* Redirections */
 			{
 				if (handle_redirects(data, cmd, hdoc) || check_files(cmd, data))
 					exit(1);	// frees ?
@@ -482,16 +476,27 @@ int	execute(t_data *data)
 				if (!cmd_exists || cmd_exists == 2 || ((ft_strlen(cmd->cmd_args[0]) == 2) && cmd->cmd_args[0][0] == '.' && cmd->cmd_args[0][1] == '.'))
 				{
 					if (!ft_strchr(cmd->cmd_args[0], '/') && path)
+					{
 						printf("bash: %s: command not found\n", cmd->token->word);
+						status = 127;
+					}
 					else
 					{
 						if (cmd_exists == 2)
+						{
 							printf("bash: %s: premission denied\n", cmd->token->word);
+							status = 126;
+						}
 						else if (cmd_exists == 1 || !path)
+						{
 							printf("bash: %s: no such file or directory\n", cmd->token->word);
+							status = 1;
+						}
 						else
+						{
 							printf("bash: %s: command not found\n", cmd->token->word);
-
+							status = 127;
+						}
 					}
 					if (env)
 						ft_freesplit(env);
@@ -501,7 +506,7 @@ int	execute(t_data *data)
 					free(path_to_use);
 					rl_clear_history();	//Pas sur de cette ligne et de la suivante,
 					free_all_data(data);//Tentative d'enlevation de leaks
-					exit(1);	//Peut etre changer code de retour
+					exit(status);	//Peut etre changer code de retour
 				}
 				execve(path_to_use, cmd->cmd_args, env);
 				if ((ft_strlen(cmd->cmd_args[0]) == 1 ) && cmd->cmd_args[0][0] == '.')
@@ -525,7 +530,8 @@ int	execute(t_data *data)
 
 		else	//On est dans le parent
 		{
-			wait(NULL);	//On attend les enfants, 
+			waitpid(cmd->pid, &status, 0);	//On attend les enfants,
+			status %= 255;
 			close(fd[1]);
 			fdd = fd[0];
 			free(hdoc);
@@ -533,7 +539,7 @@ int	execute(t_data *data)
 			cmd = cmd->next;
 		}
 	}
-	return (0);	//Peut etre pas 0
+	return (status);	//Peut etre pas 0
 }
 
 char *ft_concat_and_join(char *to_concat, char *to_join)

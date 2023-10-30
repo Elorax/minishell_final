@@ -82,6 +82,7 @@ int main(int ac, char **av, char **env)
 		if (data.line && *data.line)
 			add_history(data.line);
 		if (data.line && *data.line)
+		{
 			if (parse_line(&data) == 0)
 			{
 				if (!data.cmd)
@@ -98,8 +99,11 @@ int main(int ac, char **av, char **env)
 				}
 				if (!data.cmd)
 					continue;
-				execute(&data);
+				g_exit_status = execute(&data);
 			}
+			else
+				g_exit_status = 2;
+		}
 		if (data.old_cmd)
 			data.cmd = data.old_cmd;
 		free_data(&data);

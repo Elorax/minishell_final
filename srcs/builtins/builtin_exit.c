@@ -51,14 +51,13 @@ void	builtin_exit(t_token *token, t_data *data)
 {
 	int value;
 
-	
 	while (token && token->type != ARG)
 		token = token->next;
 	if (token == NULL)
 	{	
 		rl_clear_history();
 		free_all_data(data);
-		ft_putendl_fd("exittt", 1);
+		ft_putendl_fd("exit", 1);
 		exit(0);
 	}
 	if (!is_it_num(token->word))
@@ -73,7 +72,7 @@ void	builtin_exit(t_token *token, t_data *data)
 	if (nb_args(token) > 1)
 		return ;
 	value = ft_atoi(token->word) % 256;
-	ft_putstr_fd("exitt\n", 1);
+	ft_putstr_fd("exit\n", 1);
 	free_all_data(data);
 	exit(value);
 }

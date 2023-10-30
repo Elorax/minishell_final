@@ -196,7 +196,9 @@ char    *expand_word(t_token *token, t_env *env, int pwd_displayable)
 		dest = ft_strnjoin(dest, str + begin, i - begin - 1, 1);	//strnjoin ne doit free que dest
 
 		if (qust >= 0)
-			dest = ft_strnjoin(dest, "42", 2, 1);
+		{
+			dest = ft_strnjoin(dest, ft_itoa(g_exit_status), 3, 3);
+		}
 		begin = i;
 		printf("%s", str);
 		while (str[i] && is_char_valid(str[i]))
