@@ -353,9 +353,9 @@ char	*handle_heredoc(t_cmd_line *cmd, t_data *data)
 
 int	execute(t_data *data)
 {
-	int		fd[2];
+	int		**fd;
 	t_cmd_line *cmd;
-	int		fdd;
+	//int		fdd;
 	char	*path_to_use;	//data->path_to_use dans projet pipex.
 	char	**env;
 	char	**path;
@@ -365,13 +365,13 @@ int	execute(t_data *data)
 	status = 0;
 	hdoc = NULL;
 	path_to_use = NULL;
-	fdd = dup(STDIN_FILENO);
+	//fdd = dup(STDIN_FILENO);
 	cmd = data->cmd;
 	env = NULL;
-	printf("Debut de l'execution\n-----------------------\n");
+	printf("-----------------------\n");
 
 
-
+	//builtin only
 	if (is_builtin(data, cmd->token) && !cmd->next)
 	{
 		g_exit_status = 0;
@@ -381,21 +381,52 @@ int	execute(t_data *data)
 			if (!check_files(cmd, data))
 				builtin_dispatch(data, cmd->token, cmd);
 		return(g_exit_status);
-	} 
+	}
+
+
+	fd = malloc(sizeof(int*) * lst_cmd_size(cmd));
+	int	j;
+	int	nb_pipe = lst_cmd_size(cmd);
+	j = -1;
 	while (cmd)
 	{
+		j++;
+		fd[j] = malloc(sizeof(int) * 2);
 		if (contains_heredoc(cmd->token))
 			hdoc = handle_heredoc(cmd, data);
-		pipe(fd);
+		if (pipe(fd[j]) == -1)
+		{
+			perror("pipe");
+			exit(1);	
+		}
 		cmd->pid = fork();
 		if (cmd->pid == -1)
-			error(1, 0);	//A changer pour mettre vraie gestion d'erreur.
+		{
+			error(1, 0);	
+			free_all_data(data);
+			exit(1);
+		}
 		else if (cmd->pid == 0)	//On est dans le child.
 		{
 			//On initialise les signaux.
 			signal(SIGINT, &ctrl_c);
 			signal(SIGQUIT, &ctrl_c);
 			/* dup2's */
+			/* partie gpt*/
+			if (j > 0)
+			{
+				dup2(fd[j - 1][0], STDIN_FILENO);
+				close(fd[j - 1][0]);
+				close(fd[j - 1][1]);
+			}
+			if (j < nb_pipe - 1)
+			{
+				dup2(fd[j][1], STDOUT_FILENO);
+				close(fd[j][0]);
+				close(fd[j][1]);
+			}
+			/*fin partie gpt*/
+			/*
 			{
 				if (cmd != data->cmd)	//Si pas premiere commande
 					dup2(fdd, STDIN_FILENO);
@@ -403,12 +434,11 @@ int	execute(t_data *data)
 					dup2(fd[1], STDOUT_FILENO);
 				close(fd[1]);
 				close(fd[0]);
-			}
+			}*/
 			{
 				if (handle_redirects(data, cmd, hdoc) || check_files(cmd, data))
 					exit(1);	// frees ?
 			}
-
 			{
 				dup2(cmd->fd_in, STDIN_FILENO);	//Utile si redirections
 				if (is_builtin(data, cmd->token))
@@ -416,7 +446,7 @@ int	execute(t_data *data)
 					builtin_dispatch(data, cmd->token, cmd);
 					rl_clear_history();
 					free_all_data(data);
-					exit(0);
+					exit(g_exit_status);
 				}
 				dup2(cmd->fd_out, STDOUT_FILENO);
 			}
@@ -472,7 +502,6 @@ int	execute(t_data *data)
 					cmd_exists = 1;
 				else if (!access(path_to_use, R_OK))
 					cmd_exists = 2;
-
 				if (!cmd_exists || cmd_exists == 2 || ((ft_strlen(cmd->cmd_args[0]) == 2) && cmd->cmd_args[0][0] == '.' && cmd->cmd_args[0][1] == '.'))
 				{
 					if (!ft_strchr(cmd->cmd_args[0], '/') && path)
@@ -508,7 +537,9 @@ int	execute(t_data *data)
 					free_all_data(data);//Tentative d'enlevation de leaks
 					exit(status);	//Peut etre changer code de retour
 				}
+				
 				execve(path_to_use, cmd->cmd_args, env);
+				perror("exec");
 				if ((ft_strlen(cmd->cmd_args[0]) == 1 ) && cmd->cmd_args[0][0] == '.')
 					printf("bash: .: filename argument required\n.: usage: . filename [arguments]\n");
 				else if (!*(cmd->token->word) && cmd->token->was_quoted)
@@ -526,20 +557,31 @@ int	execute(t_data *data)
 				exit(1);	//execve s'est mal passé
 			}
 		}
-
-
-		else	//On est dans le parent
+		else	//On est dans le parent --> A mettre a la fin du while et pas a chaque etape ?
 		{
-			waitpid(cmd->pid, &status, 0);	//On attend les enfants,
-			status %= 255;
-			close(fd[1]);
-			fdd = fd[0];
+			//waitpid(cmd->pid, &status, 0);	//On attend les enfants,
+			//status %= 255;
+			//close(fd[1]);
+			//fdd = fd[0];
 			free(hdoc);
 			hdoc = NULL;
 			cmd = cmd->next;
 		}
 	}
-	return (status);	//Peut etre pas 0
+	//Fermeture de tous les fds
+	for (j = 0; j < nb_pipe; j++)
+	{
+		close(fd[j][0]);
+		close(fd[j][1]);
+	}
+	for (j = 0; j < nb_pipe; j++)
+	{
+		wait(&status);
+	}
+	for (j = 0; j < nb_pipe; j++)
+		free(fd[j]);
+	free(fd);
+	return (status % 255);	//Peut etre pas 0
 }
 
 char *ft_concat_and_join(char *to_concat, char *to_join)

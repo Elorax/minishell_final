@@ -144,6 +144,7 @@ t_token		*lst_new_n_token(char *str, size_t size);
 t_cmd_line	*lst_new_cmd_line(char *str);
 t_cmd_line	*lst_last_cmd_line(t_cmd_line *lst);
 int 		lst_size(t_cmd_line *cmd_line);
+int			lst_cmd_size(t_cmd_line *cmd_line);
 
 	/* PARSING */
 int			parse_line(t_data *data);

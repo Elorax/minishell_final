@@ -28,3 +28,18 @@ int	lst_size(t_cmd_line *cmd_line)
 	}
 	return (i);
 }
+
+int	lst_cmd_size(t_cmd_line *cmd_line)
+{
+	t_cmd_line *token;
+	int		i;
+
+	i = 0;
+	token = cmd_line;
+	while (token)
+	{
+		i++;
+		token = token->next;
+	}
+	return (i);
+}
