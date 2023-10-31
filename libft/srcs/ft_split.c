@@ -40,6 +40,7 @@ static int	ft_nb_char(char const *s, char c)
 		i++;
 	return (i);
 }
+
 /*
 static char	*ft_strndup(char const *s, int n)
 {
@@ -56,6 +57,7 @@ static char	*ft_strndup(char const *s, int n)
 	return (dest);
 }
 */
+
 void	ft_blabla(char **s, int i)
 {
 	while (--i >= 0)

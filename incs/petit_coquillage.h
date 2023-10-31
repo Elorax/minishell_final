@@ -23,13 +23,13 @@
 # include <readline/history.h>
 # include "libft/incs/libft.h"
 
-#define UPDATE 42
-#define READ 43
+# define UPDATE 42
+# define READ 43
 
 /* PRINTF */
-#define RESET "\033[0m"
-#define BOLDRED "\033[1m\033[31m"
-#define BOLDYELLOW  "\033[1m\033[33m"
+# define RESET "\033[0m"
+# define BOLDRED "\033[1m\033[31m"
+# define BOLDYELLOW  "\033[1m\033[33m"
 
 /* ERROR */
 # define MALLOC_ERROR	1			//1
@@ -61,7 +61,7 @@ OU si >= à 256 et < 0 return value %2 */
 # define CLASSIC_CHAR 0 
 
 /* STRUCTS */
-typedef struct s_token 
+typedef struct s_token
 {
 	char			*word;
 	int				was_quoted;
@@ -94,7 +94,6 @@ typedef struct s_env
 
 typedef struct s_data
 {
-	//char		**env;
 	char		*line;
 	t_cmd_line	*cmd;
 	t_cmd_line	*old_cmd;
@@ -105,11 +104,11 @@ typedef struct s_data
 
 typedef struct s_ew
 {
-	char    quoted;
-	int     i;
-	char    *name;
-	char    *value;
-	int     begin;
+	char	quoted;
+	int		i;
+	char	*name;
+	char	*value;
+	int		begin;
 	char	*dest;
 	int		qust;
 	char	*str;
@@ -119,18 +118,16 @@ typedef struct s_ew
 
 typedef struct s_exec
 {
-	int		fd[100][2];
-	t_cmd_line *cmd;
-	char	*path_to_use;
-	char	**env;
-	char	**path;
-	char	*hdoc;
-	int		status;
-	int		cmd_exists;
+	int			fd[100][2];
+	t_cmd_line	*cmd;
+	char		*path_to_use;
+	char		**env;
+	char		**path;
+	char		*hdoc;
+	int			status;
+	int			cmd_exists;
 }	t_exec;
 
-//t_data	g_data;
-extern t_data	*g_data;
 extern int		g_exit_status;
 
 /* PROTOTYPES */
@@ -143,23 +140,24 @@ void		free_data(t_data *data);
 void		free_all_data(t_data *data);
 t_env		*init_env(char **env);
 void		export_env(t_env *var_env);
-void   		print_env(t_env *var_env);
+void		print_env(t_env *var_env);
 	/* LIST */
 int			lst_create_tokens(t_cmd_line *cmd_line);
 void		lst_add_front_cmd_line(t_cmd_line **lst, t_cmd_line *new);
 void		lst_add_front_token(t_token **lst, t_token *new);
 void		lst_add_front_env(t_env **lst, t_env *new);
-void    	lst_add_back_cmd_line(t_cmd_line **lst, t_cmd_line *new);
-void    	lst_add_back_token(t_token **lst, t_token *new);
-void    	lst_add_back_env(t_env **lst, t_env *new);
+void		lst_add_back_cmd_line(t_cmd_line **lst, t_cmd_line *new);
+void		lst_add_back_token(t_token **lst, t_token *new);
+void		lst_add_back_env(t_env **lst, t_env *new);
 void		lst_clear_cmd_line(t_cmd_line **lst);
 void		lst_clear_token(t_token **lst);
 void		lst_clear_env(t_env **lst);
 void		lst_delone_cmd_line(t_cmd_line *lst);
 void		lst_delone_token(t_token *lst);
 void		lst_delone_env(t_env *lst);
-void    	lst_replace_tkn_word(t_token *token, char *new_word);
-void		lst_replace_value_env(t_env *env, char *new_value, int env_displayable);
+void		lst_replace_tkn_word(t_token *token, char *new_word);
+void		lst_replace_value_env(t_env *env,
+				char *new_value, int env_displayable);
 t_env		*lst_last_env(t_env *lst);
 t_env		*lst_new_env(char *name, char *value);
 t_env		*lst_new_env_v2(char *str);
@@ -169,7 +167,7 @@ t_token		*lst_new_token(char *str);
 t_token		*lst_new_n_token(char *str, size_t size);
 t_cmd_line	*lst_new_cmd_line(char *str);
 t_cmd_line	*lst_last_cmd_line(t_cmd_line *lst);
-int 		lst_size(t_cmd_line *cmd_line);
+int			lst_size(t_cmd_line *cmd_line);
 int			lst_cmd_size(t_cmd_line *cmd_line);
 
 	/* PARSING */
@@ -182,7 +180,7 @@ void		define_type(t_cmd_line *cmd_line);
 	/* PARSING TOKENS */
 int			expand(t_cmd_line *cmd_line, t_env *env, int pwd_displayable);
 char		*expand_word(t_token *token, t_env *env, int pwd_displayable);
-int 		expand_token(t_token *token, t_env *env, int pwd_displayable);
+int			expand_token(t_token *token, t_env *env, int pwd_displayable);
 
 int			lst_create_tokens(t_cmd_line *cmd_line);
 void		lst_insert_token(t_token *token, t_token *to_insert);
@@ -196,10 +194,10 @@ int			builtin_env(t_data *data, int print_export);
 int			builtin_export(t_data *data, t_token *token);
 int			builtin_unset(t_data *data, t_token *token);
 void		builtin_cd(char *dir, t_data *data);
-void    	builtin_echo(t_token *token, int fd);
+void		builtin_echo(t_token *token, int fd);
 void		builtin_exit(t_token *token, t_data *data, int value);
 void		builtin_pwd(void);
-int		builtin_dispatch(t_data *data, t_token *token, t_cmd_line *cmd);
+int			builtin_dispatch(t_data *data, t_token *token, t_cmd_line *cmd);
 	/* SIGNALS */
 void		ctrl_b(int sigid);
 void		ctrl_c(int sigid);
@@ -208,7 +206,7 @@ void		ctrl_d(int sigid);
 	/* EXECUTION */
 int			execute(t_data *data);
 int			ft_strcmp_equal(char *s1, char *s2);
-char 		*ft_concat_and_join(char *to_concat, char *to_join);
+char		*ft_concat_and_join(char *to_concat, char *to_join);
 
 /*norme*/
 int			str_count(char **strs);
@@ -218,33 +216,34 @@ char		*remove_whitespaces(char *str);
 int			quotes_correct(char *str);
 int			create_cmd_line(t_data *data);
 
-int	is_char_valid(char c);
-char	*remove_char_from_string(char *str, int i);
+int			is_char_valid(char c);
+char		*remove_char_from_string(char *str, int i);
 
 /*exec*/
 
-int		child_waiter(t_exec *a, int nb_pipe);
-void	dups_and_builtin(t_cmd_line *cmd, t_data *data);
-void	child_4(t_exec *a, t_data *data);
-void	child_3(t_exec *a, t_data *data);
-int		determine_status(t_exec *a);
-void	child_2(t_exec *a, t_data *data, int i, int idx);
-void	child_1(t_exec *a, t_data *data, int j, int nb_pipe);
-void	here_pipe_fork(t_exec *a, t_data *data, int *j);
-int	handle_builtin(t_data *data, t_exec *a);
-void	init_exec(t_data *data, t_exec *a);
-int	handle_open(t_cmd_line *cmd, t_token *token);
-void	heredoc_write(int *pipe_tab, t_cmd_line *cmd, char *hdoc);
-int	is_heredoc(t_cmd_line *cmd);
-int	contains_heredoc(t_token *token);
-char	*handle_heredoc(t_cmd_line *cmd, t_data *data);
-int	handle_redirects(t_data *data, t_cmd_line *cmd, char *hdoc);
-int	check_files(t_cmd_line *cmd, t_data *data);
-char	**construct_env(t_env *env);
-void	create_args(t_cmd_line *cmd_line);
-char	**init_path(char **envp);
-void	sort_export_env(char **tab_env, int len);
-void	replace_first_export_env(char **tab_env);
-void	printf_export_env(char **tab_env);
+int			child_waiter(t_exec *a, int nb_pipe);
+void		dups_and_builtin(t_cmd_line *cmd, t_data *data);
+void		child_4(t_exec *a, t_data *data);
+void		child_3(t_exec *a, t_data *data);
+int			determine_status(t_exec *a);
+void		child_2(t_exec *a, t_data *data, int i, int idx);
+void		child_1(t_exec *a, t_data *data, int j, int nb_pipe);
+void		here_pipe_fork(t_exec *a, t_data *data, int *j);
+int			handle_builtin(t_data *data, t_exec *a);
+void		init_exec(t_data *data, t_exec *a);
+int			handle_open(t_cmd_line *cmd, t_token *token);
+void		heredoc_write(int *pipe_tab, t_cmd_line *cmd, char *hdoc);
+int			is_heredoc(t_cmd_line *cmd);
+int			contains_heredoc(t_token *token);
+char		*handle_heredoc(t_cmd_line *cmd, t_data *data);
+int			handle_redirects(t_data *data, t_cmd_line *cmd, char *hdoc);
+int			check_files(t_cmd_line *cmd, t_data *data);
+char		**construct_env(t_env *env);
+void		create_args(t_cmd_line *cmd_line);
+char		**init_path(char **envp);
+void		sort_export_env(char **tab_env, int len);
+void		replace_first_export_env(char **tab_env);
+void		printf_export_env(char **tab_env);
+t_data		*get_data(t_data *data, int a);
 
 #endif

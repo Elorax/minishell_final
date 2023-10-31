@@ -58,6 +58,7 @@ SRCS	=	main.c								\
 			srcs/exec/exec3.c					\
 			srcs/exec/exec4.c					\
 			srcs/exec/exec5.c					\
+			srcs/utils/get_data.c				\
 
 OBJS	=	$(SRCS:.c=.o)
 

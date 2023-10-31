@@ -43,6 +43,7 @@ SRCS = 	srcs/ft_atoi.c 			\
 		srcs/ft_putnbr_fd.c 	\
 		srcs/ft_putstr_fd.c 	\
 		srcs/ft_split_str.c		\
+		srcs/define_quote.c		\
 		srcs/ft_split_quoted.c	\
 		srcs/ft_split.c 		\
 		srcs/ft_strcmp.c		\

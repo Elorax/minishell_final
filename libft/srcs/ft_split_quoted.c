@@ -25,54 +25,36 @@ static int	ft_is_char_in_base(char c, char *base)
 
 static int	ft_nb_words(char *str, char *charset)
 {
-	int	nb_w;
-    char quote;
+	int		nb_w;
+	char	quote;
 
-    quote = 0;
-	nb_w = 0;
-//	ft_printf("debug : ->%s<-\n", str);
+	nb_w = ((quote = 0), 0);
 	while (*str)
 	{
 		while (*str && ft_is_char_in_base(*str, charset))
-		{	
-            str++;
-        }
+			str++;
 		if (*str)
 			nb_w++;
 		while (*str && !ft_is_char_in_base(*str, charset))
 		{
-			if (*str == '\"')
-				quote = DOUBLE;
-			if (*str == '\'')
-				quote = SIMPLE;
+			quote = define_quote(*str, quote);
 			if (quote != 0)
 			{
-				str++;
-			//	ft_printf("apres quote : %s\n", str);
-				if (!ft_strchr(str, quote))
-				{
-					ft_printf("syntax error !!\n");//ptete des trucs a faire
-					//maybe some things to do before the return
-					return (-1);
-				}
+				if (!ft_strchr(++str, quote))
+					return (ft_printf("syntax error !\n"), -1);
 				else
-				{
 					while (*str != quote)
 						str++;
-				}
-			//	ft_printf("fin de quote : %s\n", str);
 			}
-			str++;
-			quote = 0;
+			str = ((quote = 0), str + 1);
 		}
 	}
 	return (nb_w);
 }
 
-
 static int	ft_nb_char(char *str, char *charset)
 {
-	int	 i;
+	int		i;
 	char	quote;
 
 	quote = 0;
@@ -86,14 +68,8 @@ static int	ft_nb_char(char *str, char *charset)
 		if (quote != 0)
 		{
 			i++;
-			//ft_printf("--apres quote : %s\n", str + i);
-			if (!ft_strchr(str + i, quote))
-			{
-				//En theorie ca trigger jamais, on a deja quitte la fonction dans ce cas ci
-			}
-			while (str[i]!= quote)
+			while (str[i] != quote)
 				i++;
-			//ft_printf("--fin de quote : %s\n", str + i);
 		}
 			i++;
 		quote = 0;
@@ -141,8 +117,7 @@ char	**ft_split_quoted(char *str, char *charset)
 		dest[i] = ft_cpyalloc(&str[j], ft_nb_char(&str[j], charset));
 		if (!dest[i])
 		{
-			ft_freesplit(dest);
-			return (NULL);
+			return ((ft_freesplit(dest), NULL));
 		}
 		j += ft_nb_char(&str[j], charset);
 	}
