@@ -151,7 +151,7 @@ int			parse_line(t_data *data);
 int			is_name_valid(char *str);
 int			two_pipe_detector(char *line);
 int			syntax_pipes(char *line);
-void		display_cmd_line(t_cmd_line *cmd_line);
+//void		display_cmd_line(t_cmd_line *cmd_line);
 void		define_type(t_cmd_line *cmd_line);
 	/* PARSING TOKENS */
 int			expand(t_cmd_line *cmd_line, t_env *env, int pwd_displayable);
@@ -180,9 +180,16 @@ void		ctrl_c(int sigid);
 void		ctrl_d(int sigid);
 
 	/* EXECUTION */
-int	execute(t_data *data);
-int	ft_strcmp_equal(char *s1, char *s2);
-char *ft_concat_and_join(char *to_concat, char *to_join);
+int			execute(t_data *data);
+int			ft_strcmp_equal(char *s1, char *s2);
+char 		*ft_concat_and_join(char *to_concat, char *to_join);
 
+/*norme*/
+int			str_count(char **strs);
+void		split_tokens_on_whitespaces(t_cmd_line *cmd);
+void		remove_tokens_quotes(t_cmd_line *cmd);
+char		*remove_whitespaces(char *str);
+int			quotes_correct(char *str);
+int			create_cmd_line(t_data *data);
 
 #endif

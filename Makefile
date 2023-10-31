@@ -37,7 +37,10 @@ SRCS	=	main.c								\
 			srcs/lst_funs/lst_size.c			\
 			srcs/parsing/define_type.c 			\
 			srcs/parsing/parse_line.c 			\
+			srcs/parsing/parse_line_2.c 		\
+			srcs/parsing/parse_line_3.c 		\
 			srcs/parsing/parse_tokens.c 		\
+			srcs/parsing/parse_tokens_2.c 		\
 			srcs/parsing/pipe_syntax.c 			\
 			srcs/parsing/expand.c				\
 			srcs/signals/ctrl_b.c		 		\

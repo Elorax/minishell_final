@@ -87,8 +87,6 @@ int main(int ac, char **av, char **env)
 			{
 				if (!data.cmd)
 					continue;
-				display_cmd_line(data.cmd);
-//				builtin_dispatch(&data, data.cmd->token);
 				data.old_cmd = data.cmd;
 				while (data.cmd)
 				{
