@@ -11,6 +11,7 @@
 /* ************************************************************************** */
 
 #include "../incs/libft.h"
+#include <stdio.h>
 
 char	*ft_strjoin(char *s1, char *s2, int to_free)
 {
@@ -19,7 +20,12 @@ char	*ft_strjoin(char *s1, char *s2, int to_free)
 	char	*new_str;
 
 	if (!s1)
-		return (ft_strdup(s2));
+	{
+		new_str = ft_strdup(s2);
+		if (to_free & 2)
+			free(s2);
+		return (new_str);
+	}
 	s1_len = ft_strlen(s1);
 	s2_len = ft_strlen(s2);
 	new_str = ft_calloc(sizeof(char), s1_len + s2_len + 1);
@@ -27,6 +33,8 @@ char	*ft_strjoin(char *s1, char *s2, int to_free)
 		return (NULL);
 	ft_strlcpy(new_str, s1, s1_len + 1);
 	ft_strlcpy(new_str + s1_len, s2, s2_len + 1);
+	printf("s1, s2 : %ld, %ld\n", s1_len, s2_len);
+	printf("new : %s\n", new_str);
 	if (to_free & 1)
 		free(s1);
 	if (to_free & 2)

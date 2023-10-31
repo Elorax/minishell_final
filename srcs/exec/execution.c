@@ -304,25 +304,17 @@ char	*read_heredoc(t_token *token, char *str, t_data *data)
 	t_token	*tkn;
 
 	dest = NULL;
-	if (str)
-	{
-		free(str);
-		str = NULL;
-	}
 	while (1)
 	{
 		dest = readline(BOLDYELLOW"> "RESET);
 		if (dest && !ft_strcmp(token->word, dest))
 			break;
-
-
 		tkn = lst_new_token(dest);
 		expand_token(tkn, data->env, data->pwd_displayable);
 
 		free(dest);
 		dest = ft_strdup(tkn->word);
 		lst_delone_token(tkn);
-		//dest = expand_word(dest, data->env, data->pwd_displayable);
 		str = ft_strjoin(str, dest, 3);
 		str = ft_strjoin(str, "\n", 1);
 	}
@@ -343,7 +335,11 @@ char	*handle_heredoc(t_cmd_line *cmd, t_data *data)
 	while (token)
 	{
 		if (token->type == LIMITOR)
+		{
+			free(dest);
+			dest = NULL;
 			dest = read_heredoc(token, dest, data);
+		}
 		token = token->next;
 	}
 	if (!dest)
@@ -380,6 +376,7 @@ int	execute(t_data *data)
 		if (!handle_redirects(data, cmd, hdoc))
 			if (!check_files(cmd, data))
 				builtin_dispatch(data, cmd->token, cmd);
+		free(hdoc);
 		return(g_exit_status);
 	}
 
