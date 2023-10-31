@@ -116,6 +116,19 @@ typedef struct s_ew
 	int		ret;
 	char	pwd[256];
 }	t_ew;
+
+typedef struct s_exec
+{
+	int		fd[100][2];
+	t_cmd_line *cmd;
+	char	*path_to_use;
+	char	**env;
+	char	**path;
+	char	*hdoc;
+	int		status;
+	int		cmd_exists;
+}	t_exec;
+
 //t_data	g_data;
 extern t_data	*g_data;
 extern int		g_exit_status;

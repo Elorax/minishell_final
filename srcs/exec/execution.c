@@ -220,8 +220,6 @@ int	handle_redirects(t_data *data, t_cmd_line *cmd, char *hdoc)
 	if (is_heredoc(cmd) && hdoc && !is_builtin(data, cmd->token))
 		heredoc_write(pipe_tab, cmd, hdoc);
 	return (0);
-
-	//Fonction a completer avec verification des ouvertures de fichiers.
 }
 
 
@@ -229,7 +227,7 @@ int	handle_redirects(t_data *data, t_cmd_line *cmd, char *hdoc)
 
 
 
-/* Verifie que les fichiers se sont bin crees */
+/* Verifie que les fichiers se sont bien crees */
 int	check_files(t_cmd_line *cmd, t_data *data)
 {
 	t_token	*token;
@@ -237,28 +235,27 @@ int	check_files(t_cmd_line *cmd, t_data *data)
 	token = cmd->token;
 	while (token)
 	{
-		if (token->fd == -42 || !access(token->word, F_OK))	//Pas un fichier ou fichier ouvert correctement.
+		if (token->fd == -42 || !access(token->word, F_OK))
 		{
 			token = token->next;
 			continue;
 		}
-		if (access(token->word, F_OK) != 0 && token->type == OPEN_FILE)	//fichier d'entree non existant
+		if (access(token->word, F_OK) != 0 && token->type == OPEN_FILE)
 		{
 			ft_putstr_fd(token->word, 2);
 			ft_putstr_fd(": bash: No such file or directory\n", 2);
 		}
-		else if (access(token->word, W_OK) != 0)	//Fichier de sortie mal ouvert. pas les droits ?
+		else if (access(token->word, W_OK) != 0)
 		{
 			ft_putstr_fd(token->word, 2);
 			ft_putstr_fd(": bash: Permission denied\n", 2);
 		}
-		if (is_builtin(data, cmd->token))	//on etait sur un builtin : on ex
-			builtin_exit(NULL, data, 0);	//maybe a changer
+		if (is_builtin(data, cmd->token))
+			builtin_exit(NULL, data, 0);
 		else
 			return (1);
 	}
 	return (0);
-	//Fonction a completer
 }
 
 
@@ -326,240 +323,240 @@ char	*handle_heredoc(t_cmd_line *cmd, t_data *data)
 	return (dest);
 }
 
+void	init_exec(t_data *data, t_exec *a)
+{
+	a->status = 0;
+	a->hdoc = NULL;
+	a->path_to_use = NULL;
+	a->cmd = data->cmd;
+	a->env = NULL;
+	a->cmd_exists = 0;
+}
+
+int	handle_builtin(t_data *data, t_exec *a)
+{
+	g_exit_status = 0;
+	if (contains_heredoc(a->cmd->token))
+		a->hdoc = handle_heredoc(a->cmd, data);
+	if (!handle_redirects(data, a->cmd, a->hdoc))
+		if (!check_files(a->cmd, data))
+			builtin_dispatch(data, a->cmd->token, a->cmd);
+	free(a->hdoc);
+	return(g_exit_status);
+}
+
+void	here_pipe_fork(t_exec *a, t_data *data, int *j)
+{
+	(*j)++;
+	if (contains_heredoc(a->cmd->token))
+		a->hdoc = handle_heredoc(a->cmd, data);
+	if (pipe(a->fd[*j]) == -1)
+	{
+		perror("pipe");
+		free_all_data(data);
+		exit(1);	
+	}
+	a->cmd->pid = fork();
+	if (a->cmd->pid == -1)
+	{
+		error(1, 0);	
+		free_all_data(data);
+		exit(1);
+	}
+}
+
+void	child_1(t_exec *a, t_data *data, int j, int nb_pipe)
+{
+	signal(SIGINT, &ctrl_c);
+	signal(SIGQUIT, &ctrl_c);
+	if (j > 0)
+	{
+		dup2(a->fd[j - 1][0], STDIN_FILENO);
+		close(a->fd[j - 1][0]);
+		close(a->fd[j - 1][1]);
+	}
+	if (j < nb_pipe - 1)
+	{
+		dup2(a->fd[j][1], STDOUT_FILENO);
+		close(a->fd[j][0]);
+		close(a->fd[j][1]);
+	}
+	if (handle_redirects(data, a->cmd, a->hdoc) || check_files(a->cmd, data))
+	{
+		free_all_data(data);
+		free(a->hdoc);
+		exit(1);	//free ?
+	}
+}
+
+void	child_2(t_exec *a, t_data *data, int i, int idx)
+{
+	create_args(a->cmd);
+	a->env = construct_env(data->env);
+	a->path = init_path(a->env);
+	if (a->path)
+	{
+		while (a->path[++i] && !a->cmd_exists && !ft_strchr(a->cmd->cmd_args[0], '/'))
+		{
+			free(a->path_to_use);
+			a->path_to_use = ft_strjoin(a->path[i], a->cmd->cmd_args[0], 0);
+			if (!a->path_to_use)
+				error(MALLOC_ERROR, "execution.c\n");
+//			if (!access(a->path_to_use, X_OK))
+//				a->cmd_exists = 1;
+			a->cmd_exists = !access(a->path_to_use, X_OK);
+		}
+	}
+	if (ft_strchr(a->cmd->cmd_args[0], '/') != NULL || !a->path)
+	{
+		if (a->cmd->cmd_args[0][0] == '/')
+			a->path_to_use = a->cmd->cmd_args[0];
+		else
+		{
+			while (ft_strcmp_equal(a->env[idx], "PWD") != 0)
+				idx++;
+			a->path_to_use = ft_concat_and_join(a->env[idx], a->cmd->cmd_args[0]);
+		}
+	}
+}
+
+int	determine_status(t_exec *a)
+{
+	if (!ft_strchr(a->cmd->cmd_args[0], '/') && a->path)
+	{
+		printf("bash: %s: command not found\n", a->cmd->token->word);
+		return (127);
+	}
+	else
+	{
+		if (a->cmd_exists == 2)
+		{
+			printf("bash: %s: premission denied\n", a->cmd->token->word);
+			return (126);
+		}
+		else if (a->cmd_exists == 1 || !a->path)
+		{
+			printf("bash: %s: no such file or directory\n", a->cmd->token->word);
+			return (1);
+		}
+		else
+		{
+			printf("bash: %s: command not found\n", a->cmd->token->word);
+			return (127);
+		}
+	}
+}
+
+void	child_3(t_exec *a, t_data *data)
+{
+	if (!a->path_to_use && a->path)
+		printf("malloc a chier dans execution.c\n");
+	if (!access(a->path_to_use, X_OK))
+		a->cmd_exists = 1;
+	else if (!access(a->path_to_use, R_OK))
+		a->cmd_exists = 2;
+	if (!a->cmd_exists || a->cmd_exists == 2 || ((ft_strlen(a->cmd->cmd_args[0]) == 2) && a->cmd->cmd_args[0][0] == '.' && a->cmd->cmd_args[0][1] == '.'))
+	{
+		a->status = determine_status(a);
+		if (a->env)
+			ft_freesplit(a->env);
+		if (a->path)
+			ft_freesplit(a->path);
+		free(a->hdoc);
+		free(a->path_to_use);
+		rl_clear_history();
+		free_all_data(data);
+		exit(a->status);	
+	}
+}
+
+void	child_4(t_exec *a, t_data *data)
+{
+	execve(a->path_to_use, a->cmd->cmd_args, a->env);
+	perror("exec");
+	if ((ft_strlen(a->cmd->cmd_args[0]) == 1 ) && a->cmd->cmd_args[0][0] == '.')
+		printf("bash: .: filename argument required\n.: usage: . filename [arguments]\n");
+	else if (!*(a->cmd->token->word) && a->cmd->token->was_quoted)
+		printf("bash: %s: command not found\n", a->cmd->token->word);
+	else
+		printf("bash: %s: Is a directory\n", a->cmd->token->word);
+	free(a->path_to_use);
+	if (a->env)
+		ft_freesplit(a->env);
+	if (a->path)
+		ft_freesplit(a->path);
+	free(a->hdoc);
+	rl_clear_history();
+	free_all_data(data);
+	exit(1);
+}
+
+void	dups_and_builtin(t_cmd_line *cmd, t_data *data)
+{
+	dup2(cmd->fd_in, STDIN_FILENO);
+	if (is_builtin(data, cmd->token))
+	{
+		builtin_dispatch(data, cmd->token, cmd);
+		rl_clear_history();
+		free_all_data(data);
+		exit(g_exit_status);
+	}
+	dup2(cmd->fd_out, STDOUT_FILENO);
+}
+
+
+
+int	child_waiter(t_exec *a, int nb_pipe)
+{
+	int	j;
+
+	for (j = 0; j < nb_pipe; j++)
+	{
+		close(a->fd[j][0]);
+		close(a->fd[j][1]);
+	}
+	for (j = 0; j < nb_pipe; j++)
+	{
+		wait(&(a->status));
+	}
+	return (a->status % 255);
+}
+
+void	child_functions(t_exec *a, t_data *data, int j, int nb_pipe)
+{
+	child_1(a, data, j, nb_pipe);
+	dups_and_builtin(a->cmd, data);
+	child_2(a, data, -1, 0);
+	child_3(a, data);
+	child_4(a, data);
+}
+
 int	execute(t_data *data)
 {
-	int		fd[100][2];
-	t_cmd_line *cmd;
-	//int		fdd;
-	char	*path_to_use;	//data->path_to_use dans projet pipex.
-	char	**env;
-	char	**path;
-	char	*hdoc;
-	int		status;
+	t_exec	a;
+	int		j;
+	int		nb_pipe;
 
-	status = 0;
-	hdoc = NULL;
-	path_to_use = NULL;
-	//fdd = dup(STDIN_FILENO);
-	cmd = data->cmd;
-	env = NULL;
-	printf("-----------------------\n");
-
-
-	//builtin only
-	if (is_builtin(data, cmd->token) && !cmd->next)
-	{
-		g_exit_status = 0;
-		if (contains_heredoc(cmd->token))
-			hdoc = handle_heredoc(cmd, data);
-		if (!handle_redirects(data, cmd, hdoc))
-			if (!check_files(cmd, data))
-				builtin_dispatch(data, cmd->token, cmd);
-		free(hdoc);
-		return(g_exit_status);
-	}
-
-
-	//fd = malloc(sizeof(int*) * lst_cmd_size(cmd));
-	int	j;
-	int	nb_pipe = lst_cmd_size(cmd);
+	init_exec(data, &a);
+	nb_pipe = lst_cmd_size(a.cmd);
 	if (nb_pipe > 99)
 		nb_pipe = 99;
 	j = -1;
-	while (cmd)
+	if (is_builtin(data, a.cmd->token) && !a.cmd->next)
+		return(handle_builtin(data, &a));
+	while (a.cmd)
 	{
-		j++;
-		//fd[j] = malloc(sizeof(int) * 2);
-		if (contains_heredoc(cmd->token))
-			hdoc = handle_heredoc(cmd, data);
-		if (pipe(fd[j]) == -1)
+		here_pipe_fork(&a, data, &j);
+		if (a.cmd->pid == 0)
+			child_functions(&a, data, j, nb_pipe);
+		else	
 		{
-			perror("pipe");
-			exit(1);	
-		}
-		cmd->pid = fork();
-		if (cmd->pid == -1)
-		{
-			error(1, 0);	
-			free_all_data(data);
-			exit(1);
-		}
-		else if (cmd->pid == 0)	//On est dans le child.
-		{
-			//On initialise les signaux.
-			signal(SIGINT, &ctrl_c);
-			signal(SIGQUIT, &ctrl_c);
-			/* dup2's */
-			/* partie gpt*/
-			if (j > 0)
-			{
-				dup2(fd[j - 1][0], STDIN_FILENO);
-				close(fd[j - 1][0]);
-				close(fd[j - 1][1]);
-			}
-			if (j < nb_pipe - 1)
-			{
-				dup2(fd[j][1], STDOUT_FILENO);
-				close(fd[j][0]);
-				close(fd[j][1]);
-			}
-			/*fin partie gpt*/
-			/*
-			{
-				if (cmd != data->cmd)	//Si pas premiere commande
-					dup2(fdd, STDIN_FILENO);
-				if (cmd->next)			//Si pas derniere commande
-					dup2(fd[1], STDOUT_FILENO);
-				close(fd[1]);
-				close(fd[0]);
-			}*/
-			{
-				if (handle_redirects(data, cmd, hdoc) || check_files(cmd, data))
-					exit(1);	// frees ?
-			}
-			{
-				dup2(cmd->fd_in, STDIN_FILENO);	//Utile si redirections
-				if (is_builtin(data, cmd->token))
-				{
-					builtin_dispatch(data, cmd->token, cmd);
-					rl_clear_history();
-					free_all_data(data);
-					exit(g_exit_status);
-				}
-				dup2(cmd->fd_out, STDOUT_FILENO);
-			}
-
-
-
-		//	dup2(fdd, 0);	//On remplace l'entree standard (0) par fdd.
-		//	if (cmd->next && cmd->next->cmd)
-		//		dup2(fd[1], 1);		//On remplace la sortie standard (1) par fd[1].
-		//	close(fd[0]);
-			//Construction des parametres d'execve (voir pipex)
-			{
-				create_args(cmd);	//creation arguments sous forme char **
-				env = construct_env(data->env);	//Creation var env sous forme char **
-				path = init_path(env);
-				
-				
-				
-				/* Creation de path to use */
-				
-				
-				int	i;
-				int cmd_exists = 0;
-				i = -1;
-				int	idx = 0;
-				if (path)
-				{
-					while (path[++i] && !cmd_exists && !ft_strchr(cmd->cmd_args[0], '/'))
-					{
-						free(path_to_use);
-						path_to_use = ft_strjoin(path[i], cmd->cmd_args[0], 0);
-						printf("path_to_use : %s\n", path_to_use);
-						if (!path_to_use)
-							printf("malloc a chier dans execution.c\n");
-						if (!access(path_to_use, X_OK))
-							cmd_exists = 1;
-					}
-				}
-				if (ft_strchr(cmd->cmd_args[0], '/') != NULL || !path)
-				{
-					if (cmd->cmd_args[0][0] == '/')
-						path_to_use = cmd->cmd_args[0];
-					else
-					{
-						while (ft_strcmp_equal(env[idx], "PWD") != 0)
-							idx++;
-						path_to_use = ft_concat_and_join(env[idx], cmd->cmd_args[0]);
-					}
-				}
-				if (!path_to_use && path)
-					printf("malloc a chier dans execution.c\n");
-				if (!access(path_to_use, X_OK))
-					cmd_exists = 1;
-				else if (!access(path_to_use, R_OK))
-					cmd_exists = 2;
-				if (!cmd_exists || cmd_exists == 2 || ((ft_strlen(cmd->cmd_args[0]) == 2) && cmd->cmd_args[0][0] == '.' && cmd->cmd_args[0][1] == '.'))
-				{
-					if (!ft_strchr(cmd->cmd_args[0], '/') && path)
-					{
-						printf("bash: %s: command not found\n", cmd->token->word);
-						status = 127;
-					}
-					else
-					{
-						if (cmd_exists == 2)
-						{
-							printf("bash: %s: premission denied\n", cmd->token->word);
-							status = 126;
-						}
-						else if (cmd_exists == 1 || !path)
-						{
-							printf("bash: %s: no such file or directory\n", cmd->token->word);
-							status = 1;
-						}
-						else
-						{
-							printf("bash: %s: command not found\n", cmd->token->word);
-							status = 127;
-						}
-					}
-					if (env)
-						ft_freesplit(env);
-					if (path)
-						ft_freesplit(path);
-					free(hdoc);
-					free(path_to_use);
-					rl_clear_history();	//Pas sur de cette ligne et de la suivante,
-					free_all_data(data);//Tentative d'enlevation de leaks
-					exit(status);	//Peut etre changer code de retour
-				}
-				
-				execve(path_to_use, cmd->cmd_args, env);
-				perror("exec");
-				if ((ft_strlen(cmd->cmd_args[0]) == 1 ) && cmd->cmd_args[0][0] == '.')
-					printf("bash: .: filename argument required\n.: usage: . filename [arguments]\n");
-				else if (!*(cmd->token->word) && cmd->token->was_quoted)
-					printf("bash: %s: command not found\n", cmd->token->word);
-				else
-					printf("bash: %s: Is a directory\n", cmd->token->word);
-				free(path_to_use);
-				if (env)
-					ft_freesplit(env);
-				if (path)
-					ft_freesplit(path);
-				free(hdoc);
-				rl_clear_history();	//Pas sur de cette ligne et de la suivante,
-				free_all_data(data);//Tentative d'enlevation de leaks
-				exit(1);	//execve s'est mal passé
-			}
-		}
-		else	//On est dans le parent --> A mettre a la fin du while et pas a chaque etape ?
-		{
-			//waitpid(cmd->pid, &status, 0);	//On attend les enfants,
-			//status %= 255;
-			//close(fd[1]);
-			//fdd = fd[0];
-			free(hdoc);
-			hdoc = NULL;
-			cmd = cmd->next;
+			free(a.hdoc);
+			a.hdoc = NULL;
+			a.cmd = a.cmd->next;
 		}
 	}
-	//Fermeture de tous les fds
-	for (j = 0; j < nb_pipe; j++)
-	{
-		close(fd[j][0]);
-		close(fd[j][1]);
-	}
-	for (j = 0; j < nb_pipe; j++)
-	{
-		wait(&status);
-	}
-	/*for (j = 0; j < nb_pipe; j++)
-		free(fd[j]);
-	free(fd);*/
-	return (status % 255);	//Peut etre pas 0
+	return (child_waiter(&a, nb_pipe));
 }
 
 char *ft_concat_and_join(char *to_concat, char *to_join)
