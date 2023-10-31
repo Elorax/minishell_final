@@ -14,9 +14,9 @@
 
 void	ctrl_d(int sigid)
 {
-	printf("exiting\n");	
+	printf("exit\n");
 	if (sigid == EOF)
 	{
-		builtin_exit(NULL, NULL);
+		builtin_exit(NULL, NULL, 0);
 	}
 }

@@ -14,7 +14,7 @@
 
 void	ctrl_c(int sigid)
 {
-	if (sigid == SIGINT)	//ctrl-c
+	if (sigid == SIGINT)
 	{
 		g_exit_status = 130;
 		if (!g_data->cmd)
@@ -24,13 +24,13 @@ void	ctrl_c(int sigid)
 			lst_clear_cmd_line(&g_data->cmd);
 			write(2, "\n", 1);
 			rl_on_new_line();
-   			rl_replace_line("", 0);
-   			rl_redisplay();
+			rl_replace_line("", 0);
+			rl_redisplay();
 		}
 		else
 			write(2, "\n", 1);
 	}
-	if (sigid == SIGQUIT)	//ctrl-\;
+	if (sigid == SIGQUIT)
 	{
 		g_exit_status = 131;
 		write(2, "Quit (core dumped)\n", ft_strlen("Quit (core dumped)\n"));

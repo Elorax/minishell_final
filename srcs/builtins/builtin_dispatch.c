@@ -12,7 +12,6 @@
 
 #include "../../incs/petit_coquillage.h"
 
-
 int	is_builtin(t_data *data, t_token *token)
 {
 	if (!data || !data->cmd)
@@ -49,15 +48,15 @@ int	builtin_dispatch(t_data *data, t_token *token, t_cmd_line *cmd)
 	{
 		if (ft_strcmp(token->word, "cd") == 0)
 		{
-            if (token->next)
-                return (builtin_cd(token->next->word, data), 1);
+			if (token->next)
+				return (builtin_cd(token->next->word, data), 1);
 		}
 		else if (ft_strcmp(token->word, "echo") == 0)
 			return (builtin_echo(token, cmd->fd_out), 1);
 		else if (ft_strcmp(token->word, "env") == 0)
 			return (builtin_env(data, 0), 1);
 		else if (ft_strcmp(token->word, "exit") == 0)
-			return (builtin_exit(token->next, data), 1);
+			return (builtin_exit(token->next, data, 0), 1);
 		else if (ft_strcmp(token->word, "export") == 0)
 			return (builtin_export(data, token->next), 1);
 		else if (ft_strcmp(token->word, "pwd") == 0)

@@ -15,6 +15,7 @@
 void	lst_remove_env(t_env *env)
 {
 	t_env	*tmp;
+
 	tmp = NULL;
 	if (!env)
 		return ;
@@ -43,21 +44,19 @@ int	builtin_unset(t_data *data, t_token *token)
 		if (token->type != ARG)
 		{
 			token = token->next;
-			continue;
+			continue ;
 		}
 		if (!is_name_valid(token->word))
 		{
 			token = token->next;
-			continue;
+			continue ;
 		}
 		tmp = lst_search(data->env, token->word);
-
 		if (tmp)
 			lst_remove_env(tmp);
 		if (ft_strcmp(token->word, "PWD") == 0)
 			data->pwd_displayable = 0;
 		token = token->next;
-
 	}
 	return (0);
 }

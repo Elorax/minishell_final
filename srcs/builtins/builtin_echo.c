@@ -28,9 +28,26 @@ static int	is_it_no_nl_flag(char *word)
 	return (!word[i]);
 }
 
-void    builtin_echo(t_token *token, int fd)
+void	builtin_echo_2(t_token *token, int fd, int nl)
 {
-    int nl;
+	while (token)
+	{
+		if (token->type == ARG && (*token->word || token->was_quoted))
+		{
+			ft_putstr_fd(" ", fd);
+			ft_putstr_fd(token->word, fd);
+		}
+		token = token->next;
+	}
+	if (nl == 1)
+	{
+		ft_putstr_fd("\n", fd);
+	}
+}
+
+void	builtin_echo(t_token *token, int fd)
+{
+	int	nl;
 
 	nl = 1;
 	token = token->next;
@@ -41,28 +58,13 @@ void    builtin_echo(t_token *token, int fd)
 		nl = 0;
 		token = token->next;
 	}
-	//On skip tous les mots true vide du debut.
-	while (token && ((!*token->word && !token->was_quoted) || token->type != ARG))
+	while (token && ((!*token->word && !token->was_quoted)
+			|| token->type != ARG))
 		token = token->next;
 	if (token)
 	{
-		//printf("%s", token->word);	//on ecrit le premier token
 		ft_putstr_fd(token->word, fd);
 		token = token->next;
 	}
-	while (token)
-	{
-		if (token->type == ARG && (*token->word || token->was_quoted)) 
-		{
-			ft_putstr_fd(" ", fd);
-			ft_putstr_fd(token->word, fd);
-		//	printf(" %s", token->word);
-		}
-		token = token->next;
-	}
-	if (nl == 1)
-	{
-		ft_putstr_fd("\n", fd);
-		//printf("\n");
-	}
+	builtin_echo_2(token, fd, nl);
 }

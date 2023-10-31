@@ -19,11 +19,10 @@ int	builtin_env(t_data *data, int print_export)
 	cursor = data->env;
 	while (cursor)
 	{
-		//printf("\nwesh\n");
 		if (cursor->is_first)
 		{
 			cursor = cursor->next;
-			continue;
+			continue ;
 		}
 		if (print_export)
 			printf("export ");
@@ -35,5 +34,5 @@ int	builtin_env(t_data *data, int print_export)
 			printf("\n");
 		cursor = cursor->next;
 	}
-	return (0); //(dans tous les cas success or not)
+	return (0);
 }

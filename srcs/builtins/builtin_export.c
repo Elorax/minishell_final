@@ -23,51 +23,54 @@ int	is_name_valid(char *str)
 	return (!*str);
 }
 
+t_token	*export_2(t_data *data, t_token *token)
+{
+	while (token && token->type != ARG)
+		token = token->next;
+	if (!token)
+		export_env(data->env);
+	return (token);
+}
+
+int	export_3(t_token *token, t_env *new)
+{
+	if (!new || !new->var_name || !*(new->var_name) || !new->var_value)
+	{
+		if (!*new->var_name)
+			printf("bash:export:`%s': not valid identifier\n", token->word);
+		lst_delone_env(new);
+		return (1);
+	}
+	if (!is_name_valid(new->var_name))
+	{
+		printf("bash: export: `%s': not a valid identifier\n", token->word);
+		lst_delone_env(new);
+		return (1);
+	}
+	return (0);
+}
 
 int	builtin_export(t_data *data, t_token *token)
 {
 	t_env	*new;
 	t_env	*find;
 
-	while (token && token->type != ARG)
-		token = token->next;
-	if (!token)
-		{
-			//return (builtin_env(data, 1));
-			export_env(data->env);
-			return (0);
-		}
+	token = export_2(data, token);
 	while (token)
 	{
-		if (token->type != ARG)
-		{
-			token = token->next;
-			continue;
-		}
 		new = lst_new_env_v2(token->word);
-		if (!new || !new->var_name || !*(new->var_name) || !new->var_value)
+		if (token->type != ARG || export_3(token, new))
 		{
-//			printf("token non valide : --%s--\n", new->var_value);
-			//voir cas export =b
-			if (!*new->var_name)
-				printf("bash: export: `%s': not a valid identifier\n", token->word);
-			lst_delone_env(new);
 			token = token->next;
-			continue;
-		}
-		if (!is_name_valid(new->var_name))
-		{
-			printf("bash: export: `%s': not a valid identifier\n", token->word);
-			lst_delone_env(new);
-			token = token->next;
-			continue;
+			continue ;
 		}
 		find = lst_search(data->env, new->var_name);
 		if (!find)
 			lst_add_back_env(&data->env, new);
 		else
 		{
-			lst_replace_value_env(find, new->var_value, !!ft_strchr(token->word, '='));
+			lst_replace_value_env(find, new->var_value,
+				!!ft_strchr(token->word, '='));
 			lst_delone_env(new);
 		}
 		token = token->next;

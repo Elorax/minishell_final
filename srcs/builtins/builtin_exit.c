@@ -47,10 +47,8 @@ static int	nb_args(t_token *token)
 	return (i);
 }
 
-void	builtin_exit(t_token *token, t_data *data)
+void	builtin_exit(t_token *token, t_data *data, int value)
 {
-	int value;
-
 	while (token && token->type != ARG)
 		token = token->next;
 	if (token == NULL)

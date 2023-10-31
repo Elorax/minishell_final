@@ -23,5 +23,4 @@ void	builtin_pwd(void)
 	}
 	else
 		error(CWD_ERROR, NULL);
-	// return 0
 }

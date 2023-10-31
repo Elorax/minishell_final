@@ -253,7 +253,7 @@ int	check_files(t_cmd_line *cmd, t_data *data)
 			ft_putstr_fd(": bash: Permission denied\n", 2);
 		}
 		if (is_builtin(data, cmd->token))	//on etait sur un builtin : on ex
-			builtin_exit(NULL, data);	//maybe a changer
+			builtin_exit(NULL, data, 0);	//maybe a changer
 		else
 			return (1);
 	}

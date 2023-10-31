@@ -171,7 +171,7 @@ int			builtin_export(t_data *data, t_token *token);
 int			builtin_unset(t_data *data, t_token *token);
 void		builtin_cd(char *dir, t_data *data);
 void    	builtin_echo(t_token *token, int fd);
-void		builtin_exit(t_token *token, t_data *data);
+void		builtin_exit(t_token *token, t_data *data, int value);
 void		builtin_pwd(void);
 int		builtin_dispatch(t_data *data, t_token *token, t_cmd_line *cmd);
 	/* SIGNALS */

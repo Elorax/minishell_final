@@ -78,9 +78,7 @@ void	builtin_cd(char *dir, t_data *data)
 		if (getcwd(cwd, sizeof(cwd)) == NULL)
 			perror("getcwd() error");
 		else
-		{
 			builtin_cd_p2(tmp, data, cwd, new_pwd);
-		}
 	}
 	free(new_pwd);
 	free(old);

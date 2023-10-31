@@ -29,8 +29,6 @@ t_token	*lst_new_token(char *str)
 	}
 	new_token->type = NONE;
 	new_token->was_quoted = 0;
-//	new_token->was_quoted = (ft_strchr(new_token->word, '\"')
-//			|| ft_strchr(new_token->word, '\''));
 	new_token->next = NULL;
 	new_token->previous = NULL;
 	new_token->fd = -42;
