@@ -103,6 +103,19 @@ typedef struct s_data
 	int			code;
 }	t_data;
 
+typedef struct s_ew
+{
+	char    quoted;
+	int     i;
+	char    *name;
+	char    *value;
+	int     begin;
+	char	*dest;
+	int		qust;
+	char	*str;
+	int		ret;
+	char	pwd[256];
+}	t_ew;
 //t_data	g_data;
 extern t_data	*g_data;
 extern int		g_exit_status;
@@ -191,5 +204,8 @@ void		remove_tokens_quotes(t_cmd_line *cmd);
 char		*remove_whitespaces(char *str);
 int			quotes_correct(char *str);
 int			create_cmd_line(t_data *data);
+
+int	is_char_valid(char c);
+char	*remove_char_from_string(char *str, int i);
 
 #endif

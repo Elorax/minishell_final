@@ -43,6 +43,8 @@ SRCS	=	main.c								\
 			srcs/parsing/parse_tokens_2.c 		\
 			srcs/parsing/pipe_syntax.c 			\
 			srcs/parsing/expand.c				\
+			srcs/parsing/expand_2.c				\
+			srcs/parsing/expand_3.c				\
 			srcs/signals/ctrl_b.c		 		\
 			srcs/signals/ctrl_c.c		 		\
 			srcs/signals/ctrl_d.c		 		\
