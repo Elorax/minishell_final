@@ -6,7 +6,7 @@
 #    By: abiersoh <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/03/30 09:01:51 by abiersoh          #+#    #+#              #
-#    Updated: 2023/03/30 09:01:53 by abiersoh         ###   ########.fr        #
+#    Updated: 2023/10/31 11:04:06 by abiersoh         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -52,6 +52,11 @@ SRCS	=	main.c								\
 			srcs/utils/free_data.c 				\
 			srcs/utils/init_env.c				\
 			srcs/exec/execution.c				\
+			srcs/exec/exec1.c					\
+			srcs/exec/exec2.c					\
+			srcs/exec/exec3.c					\
+			srcs/exec/exec4.c					\
+			srcs/exec/exec5.c					\
 
 OBJS	=	$(SRCS:.c=.o)
 
@@ -67,7 +72,7 @@ all:		$(NAME)
 
 leaks:		all
 			valgrind --suppressions=valgrind_readline_leaks_ignore.txt	\
-			--leak-check=full --show-leak-kinds=all --track-origins=yes	\
+			--leak-check=full --track-fds=yes --show-leak-kinds=all --track-origins=yes	\
 			--verbose --log-file=valgrind-out.txt ./minishell
 
 clean:

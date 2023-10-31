@@ -221,4 +221,30 @@ int			create_cmd_line(t_data *data);
 int	is_char_valid(char c);
 char	*remove_char_from_string(char *str, int i);
 
+/*exec*/
+
+int		child_waiter(t_exec *a, int nb_pipe);
+void	dups_and_builtin(t_cmd_line *cmd, t_data *data);
+void	child_4(t_exec *a, t_data *data);
+void	child_3(t_exec *a, t_data *data);
+int		determine_status(t_exec *a);
+void	child_2(t_exec *a, t_data *data, int i, int idx);
+void	child_1(t_exec *a, t_data *data, int j, int nb_pipe);
+void	here_pipe_fork(t_exec *a, t_data *data, int *j);
+int	handle_builtin(t_data *data, t_exec *a);
+void	init_exec(t_data *data, t_exec *a);
+int	handle_open(t_cmd_line *cmd, t_token *token);
+void	heredoc_write(int *pipe_tab, t_cmd_line *cmd, char *hdoc);
+int	is_heredoc(t_cmd_line *cmd);
+int	contains_heredoc(t_token *token);
+char	*handle_heredoc(t_cmd_line *cmd, t_data *data);
+int	handle_redirects(t_data *data, t_cmd_line *cmd, char *hdoc);
+int	check_files(t_cmd_line *cmd, t_data *data);
+char	**construct_env(t_env *env);
+void	create_args(t_cmd_line *cmd_line);
+char	**init_path(char **envp);
+
+
+
+
 #endif

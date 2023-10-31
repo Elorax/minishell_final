@@ -63,7 +63,7 @@ void	builtin_exit(t_token *token, t_data *data, int value)
 		rl_clear_history();
 		error(EXIT_NUM_ARG_REQUIRED, token->word);
 		free_all_data(data);
-		exit(EXIT_FAILURE);
+		exit(2);
 	}
 	if (nb_args(token) > 1)
 		error(EXIT_TOO_MANY_ARGS, NULL);
