@@ -243,8 +243,8 @@ int	check_files(t_cmd_line *cmd, t_data *data);
 char	**construct_env(t_env *env);
 void	create_args(t_cmd_line *cmd_line);
 char	**init_path(char **envp);
-
-
-
+void	sort_export_env(char **tab_env, int len);
+void	replace_first_export_env(char **tab_env);
+void	printf_export_env(char **tab_env);
 
 #endif

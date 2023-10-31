@@ -18,6 +18,7 @@ LIB		= 	libft.a
 
 SRCS	=	main.c								\
 			export.c							\
+			exporttwo.c							\
 			srcs/builtins/builtin_cd.c 			\
 			srcs/builtins/builtin_echo.c 		\
 			srcs/builtins/builtin_env.c			\
@@ -72,7 +73,7 @@ all:		$(NAME)
 
 leaks:		all
 			valgrind --suppressions=valgrind_readline_leaks_ignore.txt	\
-			--leak-check=full --track-fds=yes --show-leak-kinds=all --track-origins=yes	\
+			--leak-check=full --show-leak-kinds=all --track-origins=yes	\
 			--verbose --log-file=valgrind-out.txt ./minishell
 
 clean:
