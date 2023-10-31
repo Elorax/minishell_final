@@ -28,7 +28,7 @@ void	lst_remove_env(t_env *env)
 	}
 	else
 	{
-		printf("Eeuh probleme les mecs \nPROBLEME\nALERTE\nOSCOUR\n\n");
+		ft_putendl_fd("Issue in unset.c", 2);
 		tmp = env->next;
 		lst_delone_env(env);
 		env = tmp;

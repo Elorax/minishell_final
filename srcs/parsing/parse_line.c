@@ -105,15 +105,9 @@ void	remove_tokens_quotes(t_cmd_line *cmd)
 		{
 			i = ft_strlen(cursor->word);
 			if (!cursor->was_quoted)
-			{
-				printf("%s --> \n", cursor->word);
 				cursor->word = erase_quotes(cursor->word, 0, 0);
-				printf(" %s\n", cursor->word);
-			}
 			if (i != ft_strlen(cursor->word))
-			{
 				cursor->was_quoted = 1;
-			}
 			cursor = cursor->next;
 		}
 		cmd = cmd->next;

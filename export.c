@@ -23,25 +23,6 @@ char	*cut_tab_env(char *str, size_t len)
 	return (str);
 }
 
-/*char	*verify_end_tabenv(char *str, size_t len)
-{
-	size_t		i;
-	char		*to_keep;
-
-	i = 0;
-	if (ft_strlen(str) != len)
-	{
-		while (i < len)
-			i++;
-		to_keep = malloc(sizeof(char) * (ft_strlen(str) - len));
-		if (!to_keep)
-			return (NULL);
-		to_keep = str + i;
-		return (to_keep);
-	}
-	return (NULL);
-}*/
-
 char	*replace_tokeep(char *tab_env, char *to_keep)
 {
 	size_t	i;

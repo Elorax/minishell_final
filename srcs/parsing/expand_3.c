@@ -31,7 +31,7 @@ char	*ft_strremove(char *str, size_t begin, size_t end)
 	dest = malloc(ft_strlen(str) + 1);
 	if (!dest)
 	{
-		error(MALLOC_ERROR, "expand.c : ft_strremove");
+		error(MALLOC_ERROR, "expand_3.c : ft_strremove");
 		return (NULL);
 	}
 	i = 0;
@@ -86,7 +86,7 @@ char	*ft_strinsert(char *str, size_t begin, size_t end, char *to_insert)
 	dest = malloc(size);
 	if (!dest)
 	{
-		error(MALLOC_ERROR, "expand.c : ft_strinsert");
+		error(MALLOC_ERROR, "expand_3.c : ft_strinsert");
 		return (NULL);
 	}
 	ft_strinsert_2(dest, tmp, to_insert, begin);

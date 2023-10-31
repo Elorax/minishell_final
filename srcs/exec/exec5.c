@@ -42,7 +42,7 @@ int	determine_status(t_exec *a)
 void	child_3(t_exec *a, t_data *data)
 {
 	if (!a->path_to_use && a->path)
-		printf("malloc a chier dans execution.c\n");
+		printf("malloc error in exec5.c\n");
 	if (!access(a->path_to_use, X_OK))
 		a->cmd_exists = 1;
 	else if (!access(a->path_to_use, R_OK))

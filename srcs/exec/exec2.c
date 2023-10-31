@@ -64,7 +64,6 @@ char	**init_path(char **envp)
 void	heredoc_write(int *pipe_tab, t_cmd_line *cmd, char *hdoc)
 {
 	pipe(pipe_tab);
-	ft_putstr_fd("//Debugging heredoc_write\n", 2);
 	cmd->fd_in = pipe_tab[0];
 	ft_putstr_fd(hdoc, pipe_tab[1]);
 	close(pipe_tab[1]);

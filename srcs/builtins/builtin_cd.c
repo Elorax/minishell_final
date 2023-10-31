@@ -68,7 +68,6 @@ void	builtin_cd(char *dir, t_data *data)
 	old = NULL;
 	new_pwd = NULL;
 	tmp = data->env;
-	printf("test : %s\n ", getcwd(cwd, sizeof(cwd)));
 	new_pwd = ft_calloc(260, 1);
 	ft_memcpy(new_pwd, cwd, 256);
 	if (chdir(dir) != 0)

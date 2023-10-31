@@ -65,7 +65,7 @@ char	*t_env_to_char(t_env *env)
 	char	*dest;
 
 	if (!env)
-		printf("Probleme t_env_to_char\n");
+		ft_putendl_fd("Issue in exec1.c\n", 2);
 	dest = NULL;
 	dest = ft_strjoin(dest, env->var_name, 0);
 	if (!dest)
