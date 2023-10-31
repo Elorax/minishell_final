@@ -14,8 +14,8 @@
 
 int	two_pipe_detector(char *line)
 {
-	int	i;
-	char quoted;
+	int		i;
+	char	quoted;
 
 	if (!line)
 		return (0);
@@ -30,7 +30,7 @@ int	two_pipe_detector(char *line)
 			if (quoted == line[i])
 				quoted = 0;
 			i++;
-			continue;
+			continue ;
 		}
 		if (line[i] == '\'' || line[i] == '\"')
 			quoted = line[i];
@@ -41,31 +41,8 @@ int	two_pipe_detector(char *line)
 	return (0);
 }
 
-int	syntax_pipes(char *line)
+int	syntax_pipes_2(char **tmp, int i)
 {
-	char	**tmp;
-	int		i;
-	
-	if (two_pipe_detector(line) == SYNTAX_ERROR)
-	{
-		//Pipe en debut de commande
-		printf("bash: syntax error near unexpected token \'|\'\n");
-		return (SYNTAX_ERROR);
-	}
-	tmp = ft_split_quoted(line, " \t");
-	if (!tmp)
-	{
-		//Error malloc
-		return (MALLOC_ERROR);
-	}
-	i = 0;
-	if (tmp[0] && tmp[0][0] == '|')	
-	{
-		//Pipe en debut de commande
-		ft_freesplit(tmp);
-		printf("bash: syntax error near unexpected token \'|\'\n");
-		return (SYNTAX_ERROR);
-	}
 	while (tmp[i])
 		i++;
 	i--;
@@ -73,12 +50,34 @@ int	syntax_pipes(char *line)
 	{
 		if (tmp[i] && tmp[i][ft_strlen(tmp[i]) - 1] == '|')
 		{
-			//Pipe en fin de commande
 			ft_freesplit(tmp);
 			printf("bash: syntax error near unexpected token \'|\'\n");
 			return (SYNTAX_ERROR);
 		}
 	}
 	ft_freesplit(tmp);
-	return 0;
+	return (0);
+}
+
+int	syntax_pipes(char *line)
+{
+	char	**tmp;
+	int		i;
+
+	if (two_pipe_detector(line) == SYNTAX_ERROR)
+	{
+		printf("bash: syntax error near unexpected token \'|\'\n");
+		return (SYNTAX_ERROR);
+	}
+	tmp = ft_split_quoted(line, " \t");
+	if (!tmp)
+		return (MALLOC_ERROR);
+	i = 0;
+	if (tmp[0] && tmp[0][0] == '|')
+	{
+		ft_freesplit(tmp);
+		printf("bash: syntax error near unexpected token \'|\'\n");
+		return (SYNTAX_ERROR);
+	}
+	return (syntax_pipes_2(tmp, i));
 }

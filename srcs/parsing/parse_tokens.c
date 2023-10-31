@@ -12,7 +12,6 @@
 
 #include "incs/petit_coquillage.h"
 
-//peut aller dans un utils
 static char	type_of_char(char c, char *quoted)
 {
 	if (*quoted && c == *quoted)
@@ -32,56 +31,72 @@ static char	type_of_char(char c, char *quoted)
 	return (CLASSIC_CHAR);
 }
 
+int	split_token_2(char type, char *str, char *quoted, t_token **dest)
+{
+	char	*tmp;
+
+	tmp = str;
+	if (type == LEFT_CHEVRON)
+	{
+		if (*++str && type_of_char(*str, quoted) == LEFT_CHEVRON)
+		{
+			lst_add_back_token(dest, lst_new_token("<<"));
+			str++;
+		}
+		else
+			lst_add_back_token(dest, lst_new_token("<"));
+	}
+	else if (type == RIGHT_CHEVRON)
+	{
+		if (*++str && type_of_char(*str, quoted) == RIGHT_CHEVRON)
+		{
+			lst_add_back_token(dest, lst_new_token(">>"));
+			str++;
+		}
+		else
+			lst_add_back_token(dest, lst_new_token(">"));
+	}
+	return (str - tmp);
+}
+
+char	*split_token_init(t_token **dest, char *type, char *quoted, char *str)
+{
+	*dest = NULL;
+	*quoted = 0;
+	*type = type_of_char(*str, quoted);
+	return (str);
+}
+
 //Split une string en tokens en prenant en compte les quotes.
+
 t_token	*split_token(char *str)
 {
-	t_token *dest;
+	t_token	*dest;
 	char	*tmp;
 	char	type;
 	char	quoted;
 
-	quoted = 0;
 	if (!str)
 		return (NULL);
 	if (!*str)
-		return (lst_new_token(""));	//Peut etre NULL
-	type = type_of_char(*str, &quoted);
-	tmp = str;
-	dest = NULL;
+		return (lst_new_token(""));
+	tmp = split_token_init(&dest, &type, &quoted, str);
 	while (*str)
 	{
 		if (type == CLASSIC_CHAR)
 		{
 			tmp = str;
-			while (*(++str) && (type_of_char(*str, &quoted) == CLASSIC_CHAR || quoted))
+			while (*(++str)
+				&& (type_of_char(*str, &quoted) == CLASSIC_CHAR || quoted))
 				;
 			lst_add_back_token(&dest, lst_new_n_token(tmp, str - tmp));
 		}
-		else if (type == LEFT_CHEVRON)
-		{
-			if (*++str && type_of_char(*str, &quoted) == LEFT_CHEVRON)
-			{
-				lst_add_back_token(&dest, lst_new_token("<<"));
-				str++;
-			}
-			else
-				lst_add_back_token(&dest, lst_new_token("<"));
-		}
-		else if (type == RIGHT_CHEVRON)
-		{
-			if (*++str && type_of_char(*str, &quoted) == RIGHT_CHEVRON)
-			{
-				lst_add_back_token(&dest, lst_new_token(">>"));
-				str++;
-			}
-			else
-				lst_add_back_token(&dest, lst_new_token(">"));
-		}
+		else
+			str += split_token_2(type, str, &quoted, &dest);
 		type = type_of_char(*str, &quoted);
 	}
 	return (dest);
 }
-
 
 //insere la liste chainee to_insert apres token
 //en assurant la liaison entre to_insert et la suite de token
@@ -91,10 +106,7 @@ void	lst_insert_token(t_token *token, t_token *to_insert)
 	t_token	*tmp;
 
 	if (!token)
-	{
-		printf("cas a la con !\n");
 		return ;
-	}
 	if (!to_insert)
 		return ;
 	tmp = token->next;
@@ -130,7 +142,7 @@ void	lst_remove_token(t_token **token)
 	}
 }
 
-//fonction temporaire de debug
+/* fonction de debug
 void	lst_print_tokens(t_token *token)
 {
 	int	i = 0;
@@ -139,7 +151,7 @@ void	lst_print_tokens(t_token *token)
 		printf("%d : %s\n", ++i, token->word);
 		token = token->next;
 	}
-}
+}*/
 
 void	split_tokens(t_token **token)
 {
@@ -170,7 +182,6 @@ void	split_tokens(t_token **token)
 	}
 }
 
-
 int	lst_create_tokens(t_cmd_line *cmd_line)
 {
 	char	**tokens;
@@ -183,8 +194,7 @@ int	lst_create_tokens(t_cmd_line *cmd_line)
 		cmd_line->token = lst_new_token(tokens[0]);
 	else
 	{
-		//On est dans le cas ou deux pipes d'affilee
-		printf("blabla unexpected token near |\n");
+		printf("bash: syntax error near unexpected token \'|\'\n");
 		return (SYNTAX_ERROR);
 	}
 	i = 0;

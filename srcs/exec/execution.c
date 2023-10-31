@@ -328,7 +328,7 @@ char	*handle_heredoc(t_cmd_line *cmd, t_data *data)
 
 int	execute(t_data *data)
 {
-	int		**fd;
+	int		fd[100][2];
 	t_cmd_line *cmd;
 	//int		fdd;
 	char	*path_to_use;	//data->path_to_use dans projet pipex.
@@ -360,14 +360,16 @@ int	execute(t_data *data)
 	}
 
 
-	fd = malloc(sizeof(int*) * lst_cmd_size(cmd));
+	//fd = malloc(sizeof(int*) * lst_cmd_size(cmd));
 	int	j;
 	int	nb_pipe = lst_cmd_size(cmd);
+	if (nb_pipe > 99)
+		nb_pipe = 99;
 	j = -1;
 	while (cmd)
 	{
 		j++;
-		fd[j] = malloc(sizeof(int) * 2);
+		//fd[j] = malloc(sizeof(int) * 2);
 		if (contains_heredoc(cmd->token))
 			hdoc = handle_heredoc(cmd, data);
 		if (pipe(fd[j]) == -1)
@@ -554,9 +556,9 @@ int	execute(t_data *data)
 	{
 		wait(&status);
 	}
-	for (j = 0; j < nb_pipe; j++)
+	/*for (j = 0; j < nb_pipe; j++)
 		free(fd[j]);
-	free(fd);
+	free(fd);*/
 	return (status % 255);	//Peut etre pas 0
 }
 
