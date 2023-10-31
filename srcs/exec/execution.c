@@ -13,27 +13,6 @@
 #include "../../incs/petit_coquillage.h"
 
 
-
-/* Fonctions importees de pipex, a ranger plus tard. */
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/* Rempli le char ** cmd_args avec les arguments
-de tous les tokens de la liste chainee. */
-
 void	fill_cmd_args(t_cmd_line *cmd_line, t_token *token)
 {
 	int	i;

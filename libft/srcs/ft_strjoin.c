@@ -33,8 +33,6 @@ char	*ft_strjoin(char *s1, char *s2, int to_free)
 		return (NULL);
 	ft_strlcpy(new_str, s1, s1_len + 1);
 	ft_strlcpy(new_str + s1_len, s2, s2_len + 1);
-	printf("s1, s2 : %ld, %ld\n", s1_len, s2_len);
-	printf("new : %s\n", new_str);
 	if (to_free & 1)
 		free(s1);
 	if (to_free & 2)
